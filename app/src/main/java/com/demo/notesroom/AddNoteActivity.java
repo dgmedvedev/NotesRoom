@@ -2,6 +2,7 @@ package com.demo.notesroom;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,13 +21,15 @@ public class AddNoteActivity extends AppCompatActivity {
     private RadioGroup radioGroupPriority;
     private Button buttonSaveNote;
 
-    private NotesDatabase database; // 1 DB
+    // private NotesDatabase database; // 1 DB
+    private MainViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_note);
-        database = NotesDatabase.getInstance(this); // 2 DB
+        //database = NotesDatabase.getInstance(this); // 2 DB
+        viewModel = new ViewModelProvider(this).get(MainViewModel.class);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.hide();
@@ -48,7 +51,8 @@ public class AddNoteActivity extends AppCompatActivity {
             // 3  DB. Добавляем данные в БД
             if (isFilled(title, description)) {
                 Note note = new Note(title, description, dayOfWeek, priority);
-                database.notesDao().insertNote(note);
+                // database.notesDao().insertNote(note);
+                viewModel.insertNote(note);
                 Intent intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
             } else {

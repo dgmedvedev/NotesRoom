@@ -3,22 +3,21 @@ package com.demo.notesroom;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,14 +25,18 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerViewNotes;
     private final ArrayList<Note> notes = new ArrayList<>();
     NotesAdapter adapter;
-    private NotesDatabase database; // 1 DB
+
+    //private NotesDatabase database; // 1 DB
+    private MainViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        database = NotesDatabase.getInstance(this); // 2 DB
-        //getInstanceDatabase();
+
+        //database = NotesDatabase.getInstance(this); // 2 DB
+        viewModel = new ViewModelProvider(this).get(MainViewModel.class);
+
         getData(); // 4 DB
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -94,27 +97,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void remove(int position) { // 5 DB
-        Note note = notes.get(position);
-        database.notesDao().deleteNote(note);
-        getData();
-        // мгновенно обновляет RecyclerView, при добавлении или удалении элемента
-        // без метода notifyDataSetChanged() приложение ломается
-        adapter.notifyDataSetChanged();
+        // Note note = notes.get(position);
+        Note note = adapter.getNotes().get(position);
+        // database.notesDao().deleteNote(note);
+        viewModel.deleteNote(note);
     }
 
     private void getData() { // 3 DB
-        List<Note> notesFromDB = database.notesDao().getAllNotes();
-        notes.clear();
-        notes.addAll(notesFromDB);
+        //LiveData<List<Note>> notesFromDB = database.notesDao().getAllNotes();
+        LiveData<List<Note>> notesFromDB = viewModel.getNotes();
+        notesFromDB.observe(this, new Observer<List<Note>>() {
+            @Override
+            public void onChanged(List<Note> notesFromLiveData) {
+//                notes.clear();
+//                notes.addAll(notesFromLiveData);
+//                // мгновенно обновляет RecyclerView, при добавлении или удалении элемента
+//                // без метода notifyDataSetChanged() приложение ломается
+//                adapter.notifyDataSetChanged();
+                adapter.setNotes(notesFromLiveData);
+            }
+        });
     }
-
-//    private void getInstanceDatabase() {
-//        ExecutorService executor = Executors.newSingleThreadExecutor();
-//        Handler handler = new Handler(Looper.getMainLooper());
-//        executor.execute(() -> {
-//            handler.post(() -> {
-//                database = NotesDatabase.getInstance(MainActivity.this); // 2 DB
-//            });
-//        });
-//    }
 }

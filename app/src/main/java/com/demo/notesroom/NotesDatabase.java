@@ -16,7 +16,7 @@ public abstract class NotesDatabase extends RoomDatabase {
         synchronized (LOCK) {
             if (database == null) {
                 database = Room.databaseBuilder(context, NotesDatabase.class, DB_NAME)
-                        .allowMainThreadQueries() // ИСКЛЮЧИТЕЛЬНО для тестирования приложения
+                        //.allowMainThreadQueries() // ИСКЛЮЧИТЕЛЬНО для тестирования приложения
                         .build();
             }
         }

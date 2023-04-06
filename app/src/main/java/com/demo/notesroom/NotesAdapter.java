@@ -9,10 +9,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHolder> {
 
-    ArrayList<Note> notes;
+    List<Note> notes;
 
     private OnNoteClickListener onNoteClickListener;
 
@@ -45,7 +46,7 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
         Note note = notes.get(position);
         notesViewHolder.textViewTitle.setText(note.getTitle());
         notesViewHolder.textViewDescription.setText(note.getDescription());
-        notesViewHolder.textViewDayOfWeek.setText(Note.getDayAsString(note.getDayOfWeek()));
+        notesViewHolder.textViewDayOfWeek.setText(getDayAsString(note.getDayOfWeek()));
         int colorId;
         int priority = note.getPriority();
         switch (priority) {
@@ -92,5 +93,33 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
                 return true; // если указать false, то сработает и метод onClick(View view)
             });
         }
+    }
+
+    public static String getDayAsString(int position) {
+        switch (position) {
+            case 1:
+                return "Понедельник";
+            case 2:
+                return "Вторник";
+            case 3:
+                return "Среда";
+            case 4:
+                return "Четверг";
+            case 5:
+                return "Пятница";
+            case 6:
+                return "Суббота";
+            default:
+                return "Воскресенье";
+        }
+    }
+
+    public void setNotes(List<Note> notes) {
+        this.notes = notes;
+        notifyDataSetChanged();
+    }
+
+    public List<Note> getNotes() {
+        return notes;
     }
 }
